@@ -1,4 +1,5 @@
 use super::point::Point3;
+use super::ray::Ray;
 use super::vector::Vector3;
 use std::ops::*;
 
@@ -125,6 +126,14 @@ impl Mul<Point3> for Matrix3 {
             y: self.rows[1][0] * other.x + self.rows[1][1] * other.y + self.rows[1][2] * other.z,
             z: self.rows[2][0] * other.x + self.rows[2][1] * other.y + self.rows[2][2] * other.z,
         }
+    }
+}
+
+impl Mul<Ray> for Matrix3 {
+    type Output = Ray;
+
+    fn mul(self, other: Ray) -> Ray {
+        Ray::new(self * other.origin, (self * other.direction).normalised())
     }
 }
 

@@ -116,6 +116,16 @@ impl Vector3 {
         self.z /= len;
     }
 
+    pub fn normalised(self) -> Vector3 {
+        let len = self.length();
+
+        Vector3 {
+            x: self.x / len,
+            y: self.y / len,
+            z: self.z / len,
+        }
+    }
+
     pub fn dot(self, other: Vector3) -> f32 {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
