@@ -45,11 +45,13 @@ fn main() {
     let mut spheres: Vec<Sphere> = Vec::new();
     spheres.push(Sphere::new(Point3::new(0_f32, 0_f32, 3_f32), 1_f32));
 
+    spheres.push(Sphere::new(Point3::new(1.5_f32, 0_f32, 3_f32), 0.35_f32));
+
     let width = 800;
     let height = 800;
 
-    let light_pos = Point3::new(1_f32, 0_f32, 0_f32);
-    let light_intensity = 3000_f32;
+    let light_pos = Point3::new(2_f32, 0_f32, 2_f32);
+    let light_intensity = 600_f32;
 
     let mut imgbuf = image::GrayImage::new(width, height);
 
@@ -84,7 +86,7 @@ fn main() {
         }
     }
 
-    imgbuf.save("fractal.png").unwrap();
+    imgbuf.save("render.png").unwrap();
 
     println!("Hello, world! {}", *FOV_FACTOR);
 }

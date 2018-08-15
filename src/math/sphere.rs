@@ -12,7 +12,7 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn intersect(self, ray: Ray) -> (bool, f32) {
+    pub fn intersect(&self, ray: Ray) -> (bool, f32) {
         let ray_to_sphere = ray.origin - self.centre;
         let ray_to_sphere_length_squared = ray_to_sphere.length_squared();
 
@@ -43,7 +43,7 @@ impl Sphere {
     /// Gets the Normal at a given point on the sphere
     ///
     /// Expects that the point is on the sphere - doesn't normalise
-    pub fn get_normal(self, point: Point3) -> Vector3 {
+    pub fn get_normal(&self, point: Point3) -> Vector3 {
         (point - self.centre) / self.radius
     }
 }
