@@ -20,6 +20,18 @@ impl Sub for Point3 {
     }
 }
 
+impl Add<Vector3> for Point3 {
+    type Output = Point3;
+
+    fn add(self, other: Vector3) -> Point3 {
+        Point3 {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
+}
+
 impl Point3 {
     pub fn new(x: f32, y: f32, z: f32) -> Point3 {
         Point3 { x, y, z }

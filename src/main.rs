@@ -48,6 +48,9 @@ fn main() {
     let width = 800;
     let height = 800;
 
+    let light_pos = Point3::new(1_f32, 0_f32, 0_f32);
+    let light_intensity = 3000_f32;
+
     let mut imgbuf = image::GrayImage::new(width, height);
 
     for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
@@ -61,7 +64,21 @@ fn main() {
         let (has_intersection, distance, sphere) = get_nearest(&spheres, camera_ray);
 
         if has_intersection {
-            *pixel = image::Luma([255 as u8]);
+            let intersection_point = camera_ray.origin + camera_ray.direction * distance;
+            let surface_normal = sphere.get_normal(intersection_point);
+            let vector_to_light = light_pos - intersection_point;
+            let mut cosine_term = vector_to_light.normalised().dot(surface_normal);
+
+            if cosine_term < 0_f32 {
+                cosine_term = 0_f32;
+            }
+
+            let reflected_light = (1_f32 / f32::consts::PI) * cosine_term * light_intensity
+                / vector_to_light.length_squared();
+
+            let reflected_light = reflected_light.min(255_f32);
+
+            *pixel = image::Luma([reflected_light as u8]);
         } else {
             *pixel = image::Luma([0 as u8]);
         }

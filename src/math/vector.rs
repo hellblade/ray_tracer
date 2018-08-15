@@ -1,5 +1,9 @@
 use std::ops::*;
 
+extern crate float_cmp;
+
+use self::float_cmp::ApproxEqUlps;
+
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub struct Vector3 {
     pub x: f32,
@@ -189,7 +193,7 @@ mod tests {
             z: 3f32,
         };
         vec.normalise();
-        //assert_eq!(vec, 1f32);
+        assert!(vec.length().approx_eq_ulps(&1_f32, 2))
     }
 
     #[test]

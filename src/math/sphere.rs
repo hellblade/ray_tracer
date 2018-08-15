@@ -2,6 +2,7 @@ extern crate float_cmp;
 
 use super::point::*;
 use super::ray::*;
+use super::vector::*;
 use math::sphere::float_cmp::ApproxEqUlps;
 
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
@@ -37,5 +38,12 @@ impl Sphere {
 
     pub fn new(centre: Point3, radius: f32) -> Sphere {
         Sphere { centre, radius }
+    }
+
+    /// Gets the Normal at a given point on the sphere
+    ///
+    /// Expects that the point is on the sphere - doesn't normalise
+    pub fn get_normal(self, point: Point3) -> Vector3 {
+        (point - self.centre) / self.radius
     }
 }
