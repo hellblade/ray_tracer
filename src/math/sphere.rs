@@ -12,28 +12,25 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn intersect(&self, ray: Ray) -> (bool, f32) {
-        let ray_to_sphere = ray.origin - self.centre;
-        let ray_to_sphere_length_squared = ray_to_sphere.length_squared();
+    pub fn intersect(&self, ray: &Ray) -> (bool, f32) {
+        let v = ray.origin - self.centre;
 
-        let direction_dot = ray.direction.dot(ray_to_sphere);
-        let direction_dot_squared = direction_dot * direction_dot;
+        let b = v.dot(ray.direction);
+        let c = v.dot(v) - (self.radius * self.radius);
 
-        let diffs =
-            direction_dot_squared - ray_to_sphere_length_squared + self.radius * self.radius;
-
-        if diffs.approx_eq_ulps(&0_f32, 2) {
-            // Only one solution
-
-            return (true, -direction_dot);
-        } else if diffs < 0_f32 {
-            // No solutions
+        if c > 0_f32 && b > 0_f32 {
             return (false, 0_f32);
         }
 
-        // Two solutions, so find the minimum one
+        let discriminant = b * b - c;
 
-        (true, -direction_dot - diffs.sqrt())
+        if discriminant < 0_f32 {
+            return (false, 0_f32);
+        }
+
+        let distance = (-b - discriminant.sqrt()).max(0_f32);
+
+        (true, distance)
     }
 
     pub fn new(centre: Point3, radius: f32) -> Sphere {

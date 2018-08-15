@@ -108,7 +108,7 @@ impl Vector3 {
         self.dot(self)
     }
 
-    pub fn length(self) -> f32 {
+    pub fn length(&self) -> f32 {
         self.length_squared().sqrt()
     }
 

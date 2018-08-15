@@ -23,7 +23,7 @@ fn get_camera_ray(u: f32, v: f32, view_matrix: Matrix3) -> Ray {
     view_matrix * Ray::new(origin, direction)
 }
 
-fn get_nearest(spheres: &Vec<Sphere>, ray: Ray) -> (bool, f32, Sphere) {
+fn get_nearest(spheres: &Vec<Sphere>, ray: &Ray) -> (bool, f32, Sphere) {
     let mut nearest_distance = f32::INFINITY;
     let mut nearest_sphere = Sphere::new(Point3::zero(), 0_f32);
     let mut is_intersection = false;
@@ -41,17 +41,34 @@ fn get_nearest(spheres: &Vec<Sphere>, ray: Ray) -> (bool, f32, Sphere) {
     (is_intersection, nearest_distance, nearest_sphere)
 }
 
+fn is_occluded(spheres: &Vec<Sphere>, ray: &Ray, distance_to_light: f32, exclude: &Sphere) -> bool {
+    for sphere in spheres.iter() {
+        if sphere == exclude {
+            continue;
+        }
+
+        let (has_intersection, distance) = sphere.intersect(ray);
+
+        if has_intersection && distance < distance_to_light {
+            return true;
+        }
+    }
+
+    false
+}
+
 fn main() {
     let mut spheres: Vec<Sphere> = Vec::new();
     spheres.push(Sphere::new(Point3::new(0_f32, 0_f32, 3_f32), 1_f32));
 
-    spheres.push(Sphere::new(Point3::new(1.5_f32, 0_f32, 3_f32), 0.35_f32));
+    spheres.push(Sphere::new(Point3::new(1_f32, 0_f32, 2_f32), 0.35_f32));
 
     let width = 800;
     let height = 800;
 
-    let light_pos = Point3::new(2_f32, 0_f32, 2_f32);
-    let light_intensity = 600_f32;
+    let light_pos = Point3::new(2_f32, 0_f32, 1_f32);
+    let light_intensity = 800_f32;
+    let ambient_light = 10u8;
 
     let mut imgbuf = image::GrayImage::new(width, height);
 
@@ -63,24 +80,32 @@ fn main() {
         let camera_ray = get_camera_ray(u, v, Matrix3::identity());
 
         // perform an intersection test
-        let (has_intersection, distance, sphere) = get_nearest(&spheres, camera_ray);
+        let (has_intersection, distance, sphere) = get_nearest(&spheres, &camera_ray);
 
         if has_intersection {
             let intersection_point = camera_ray.origin + camera_ray.direction * distance;
             let surface_normal = sphere.get_normal(intersection_point);
             let vector_to_light = light_pos - intersection_point;
-            let mut cosine_term = vector_to_light.normalised().dot(surface_normal);
+            let distance_to_light = vector_to_light.length();
+            let ray_to_light = Ray::new(intersection_point, vector_to_light.normalised());
 
-            if cosine_term < 0_f32 {
-                cosine_term = 0_f32;
+            if !is_occluded(&spheres, &ray_to_light, distance_to_light, &sphere) {
+                let mut cosine_term = vector_to_light.normalised().dot(surface_normal);
+
+                if cosine_term < 0_f32 {
+                    cosine_term = 0_f32;
+                }
+
+                let reflected_light = (1_f32 / f32::consts::PI) * cosine_term * light_intensity
+                    / vector_to_light.length_squared()
+                    + ambient_light as f32;
+
+                let reflected_light = reflected_light.min(255_f32);
+
+                *pixel = image::Luma([reflected_light as u8]);
+            } else {
+                *pixel = image::Luma([ambient_light as u8]);
             }
-
-            let reflected_light = (1_f32 / f32::consts::PI) * cosine_term * light_intensity
-                / vector_to_light.length_squared();
-
-            let reflected_light = reflected_light.min(255_f32);
-
-            *pixel = image::Luma([reflected_light as u8]);
         } else {
             *pixel = image::Luma([0 as u8]);
         }
