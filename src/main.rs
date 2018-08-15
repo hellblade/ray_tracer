@@ -10,7 +10,7 @@ use math::sphere::*;
 use math::vector::*;
 use std::f32;
 
-const FOV: f32 = 90_f32;
+const FOV: f32 = 120_f32 * f32::consts::PI / 180_f32;
 
 lazy_static! {
     static ref FOV_FACTOR: f32 = { 1_f32 / (FOV / 2_f32).tan() };
